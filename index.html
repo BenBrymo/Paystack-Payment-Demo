@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOMOA CENTRAL ONLINE PAYMENT PLATFORM</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script> <!-- Paystack script -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            margin-bottom: 5px;
+            display: block;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <h1>GOMOA CENTRAL ONLINE PAYMENT PLATFORM</h1>
+    <form id="paymentForm">
+        <label for="instituition">Organization Name</label>
+        <input type="instituition" id="instituition" required placeholder="Enter your Organizations Name">
+        
+        <label for="amount">Amount (in GH)</label>
+        <input type="number" id="amount" required placeholder="Enter amount">
+
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required placeholder="Enter your name">
+
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" required placeholder="Enter your phone number">
+
+        <button type="submit">Pay Now</button>
+    </form>
+
+    <script>
+        const paymentForm = document.getElementById('paymentForm');
+
+        paymentForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Retrieve form data
+            const instituition = document.getElementById('instituition').value;
+            const amount = document.getElementById('amount').value * 100; // Convert to kobo
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+
+            // Paystack Payment Configuration
+            const handler = PaystackPop.setup({
+                key: 'pk_live_b271336e7c764b411631eed6918e662e6db8ae62', // Replace with your Paystack public key
+                instituition: instituition,
+                amount: amount,
+                currency: 'GHS', // Change currency if needed
+                ref: `TEST_${Math.floor((Math.random() * 1000000000) + 1)}`, // Generate a unique transaction reference
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: name,
+                            variable_name: 'phone',
+                            value: phone,
+                        },
+                    ],
+                },
+                callback: (response) => {
+                   // Redirect to the verification page with the reference
+                    const transactionRef = response.reference;
+                    window.location.href = `verificationPage.html?reference=${transactionRef}`;
+                },
+                onClose: () => {
+                    alert('Transaction was not completed.');
+                },
+            });
+
+            // Open the payment window
+            handler.openIframe();
+        });
+    </script>
+</body>
+</html>
